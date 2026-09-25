@@ -76,12 +76,161 @@ function Jogo() {
     escritaLenta("\nBEM-VINDO INVESTIGADOR!\n\n", 10);
     $Player = new Player(readline(escritaLenta("Digite seu nome: ",10)), readline(escritaLenta("\nDigite seu tipo\n1: Campo\n2: Paranormal\n3: Medium\n(Isso lhe dara mais sorte para Auto-Investigação)\n-> ", 10)));
     while (true) {
+        $caso = 0;
+        $resp = "";
         do{
             $caso = CriarCaso($Locais, $Entidades);
-            $resp = readline(escritaLenta("Novo caso gerado:\n" . $caso . "\n\nDeseja aceitar este caso? (S/N): "));
-        } while ($resp);
+            $resp = readline(escritaLenta("\n\nAbrindo um Caso ñ resolvido:\n\n" . $caso . "\n\nDeseja aceitar este caso? (S/N): "));
+        } while (!(strtoupper($resp) == "S"));
+
+        escritaLenta("\n\nCaso aceito! Iniciando seleção de investigadores e itens...\n", 10);
+        $InvesSelecionados = escolhaCompra($Investigadores, $caso);
+        $ItensSelecionados = escolhaCompra($Itens, $caso);
+        $turno = 1;
+        while ($turno <= 5) {
+            escritaLenta("\n\nTurno " . $turno . " de 5\n", 10);
+            switch (Menu()) {
+                case 1:
+                    DistribuirTurno($InvesSelecionados, $ItensSelecionados, $caso);
+                    break;
+                case 2:
+                    escritaLenta("\nVerificando Evidências Coletadas...\n", 10);
+                    foreach ($InvesSelecionados as $investigador) {
+                        $evidencias = $investigador->getEvidenciasColetadas();
+                        if (!empty($evidencias)) {
+                            echo "Evidências coletadas por " . $investigador->getNome() . ":\n";
+                            foreach ($evidencias as $evidencia) {
+                                echo "- " . $evidencia[0] . "\n";
+                            }
+                        } else {
+                            echo "Nenhuma evidência coletada por " . $investigador->getNome() . ".\n";
+                        }
+                    }
+                    break;
+                case 3:
+                    escritaLenta("\nTentando Identificar Entidade...\n", 10);
+                    if ($caso->identificarEntidade($InvesSelecionados)) {
+                        escritaLenta("\nParabéns! Você identificou a entidade responsável pelo caso!\n", 10);
+                        break 2; // Sai do loop de turnos e do loop principal
+                    } else {
+                        escritaLenta("\nFalha na identificação da entidade. Continue investigando.\n", 10);
+                    }
+                    break;
+                case 4:
+                    Ajuda();
+                    break;
+                default:
+                    escritaLenta("\nOpção inválida. Tente novamente.\n", 10);
+            }
+            $turno++;
+        }
         
     }
+}
+
+function DistribuirTurno($InvesSelecionados,$ItensSelecionados, $caso) {
+    escritaLenta("\nDistribuindo Turno...\n", 10);
+    while (true){
+        echo "Quem vc quer distribuir?\n1 - Investigadores\n2 - Vc mesmo (Auto-Investigação)\n";
+        $opcao = readlineComIntervalo("Escolha uma opção: ", 1, 2);
+
+        if ($opcao == 1) {
+            foreach ($InvesSelecionados as $i=>$investigador) {
+                echo "\n" . ($i+1) . " - " . $investigador->getNome() . "...\n";
+            }
+
+            $escolha = readlineComIntervalo("Escolha um investigador para distribuir: ", 1, count($InvesSelecionados));
+            $indice = $escolha - 1;
+            $investigadorEscolhido = $InvesSelecionados[$indice];
+
+            echo "\nEscolha um cômodo para " . $investigadorEscolhido->getNome() . " investigar:\n";
+            echo $caso->getLocal();
+            $comodoEscolhido = readlineComIntervalo("Digite o número do cômodo escolhido: ", 1, count($caso->getLocal()->getComodos()));
+            $indiceComodo = $comodoEscolhido - 1;
+            $investigadorEscolhido->setComodoDesignado($indiceComodo);
+            escritaLenta("\n" . $investigadorEscolhido->getNome() . " foi designado para investigar o cômodo " . $caso->getLocal()->getComodos()[$indiceComodo] . ".\n", 10);
+            break;
+        } else {
+            escritaLenta("\nVocê escolheu Auto-Investigação.\n", 10);
+            $comodoEscolhido = readlineComIntervalo("Escolha um cômodo para você investigar:\n" . $caso->getLocal() . "\nDigite o número do cômodo escolhido: ", 1, count($caso->getLocal()->getComodos()));
+            $indiceComodo = $comodoEscolhido - 1;
+            $Player->setComodoDesignado($indiceComodo);
+            escritaLenta("\nVocê foi designado para investigar o cômodo " . $caso->getLocal()->getComodos()[$indiceComodo] . ".\n", 10);
+            break;
+        }
+    }
+}
+
+function readlineComIntervalo($prompt, $min, $max) {
+    while (true) {
+        $input = (int)readline($prompt);
+        if ($input >= $min && $input <= $max) {
+            return $input;
+        } else {
+            echo "insira um número entre $min e $max.\n";
+        }
+    }
+}
+
+function Menu(){
+    echo "\n\nMENU PRINCIPAL\n";
+    echo "1 - Distribuir Turno\n";
+    echo "2 - Verificar Evidências Coletadas\n";
+    echo "3 - Tentar Identificar Entidade\n";
+    echo "4 - Guias\n";
+
+    return readlineComIntervalo("Escolha uma opção: ", 1, 4);
+}
+
+function escolhaCompra($var, $caso) {
+    $orcamento = $caso->getorcamento();
+    if (!is_array($var) || empty($var)) {
+        return array([], $orcamento);
+    }
+
+    $selecionados = array();
+    $custoTotal = 0;
+
+    echo "FAÇA SUAS ESCOLHAS:\n\n";
+
+    while (true) {
+        $orcamentoRestante = $orcamento - $custoTotal;
+        echo "\nOrçamento disponível: R$ " . number_format($orcamentoRestante, 2, ',', '.') . "\n";
+        echo "Escolha um item (ou digite 'fim' para encerrar a seleção):\n";
+
+        foreach ($var as $index => $Valor) {
+            echo ($index + 1) . ". " . $Valor->getNome() . " - Custo: R$ " . number_format($Valor->getCusto(), 2, ',', '.') . "\n";
+        }
+
+        $escolha = readline("Digite o número do item escolhido: ");
+        if (strtolower($escolha) === 'fim') {
+            break;
+        }
+
+        $indice = (int) $escolha - 1;
+        $existe = false;
+        foreach ($selecionados as $item) {
+            if ($item->getNome() === $var[$indice]->getNome()) {
+                $existe = true;
+                break;
+            }
+        }
+        if (isset($var[$indice]) && $indice >= 0 && $indice < count($var) && !$existe) {
+            $ValorEscolhido = $var[$indice];
+
+            if ($custoTotal + $ValorEscolhido->getCusto() <= $orcamento) {
+                $selecionados[] = $ValorEscolhido;
+                $custoTotal += $ValorEscolhido->getCusto();
+                echo "Item " . $ValorEscolhido->getNome() . " adicionado(a) à seleção.\n";
+            } else {
+                echo "Orçamento insuficiente para adicionar este item.\n";
+            }
+        } else {
+            echo "\nOpção inválida. Tente novamente.\n\n";
+        }
+    }
+    $caso->setorcamento($orcamento - $custoTotal);
+    return $selecionados;
 }
 
 function escritaLenta(string $texto, int $velocidade = 30): null {
@@ -116,7 +265,7 @@ function Ajuda(){
 function CriarCaso($Locais, $Entidades) {
     $local = $Locais[array_rand($Locais)];
     $entidade = $Entidades[array_rand($Entidades)];
-    $descricao = "Um caso misterioso ocorreu em " . $local->getNome() . ". Sua missão é investigar e coletar evidências para identificar a entidade responsável.";
+    $descricao = "Um caso misterioso ocorreu em " . $local->getNome() . ". Sua missão é identificar a entidade responsável.";
     $orcamento = rand(1000, 5000);
     $tempoMax = 5;
 
