@@ -3,11 +3,14 @@
 class Investigador {
     private string $nome;
     private float $custo;
+    private int $comodoDesignado;
 
     public function __construct($nm, $custo)
     {
         $this->nome = $nm;
         $this->custo = $custo;
+        $this->comodoDesignado = 0;
+
     }
 
     public function getNome(): string
@@ -30,6 +33,17 @@ class Investigador {
     public function setCusto(float $custo): self
     {
         $this->custo = $custo;
+
+        return $this;
+    }
+
+    public function getComodoDesignado(): int
+    {
+        return $this->comodoDesignado;
+    }
+    public function setComodoDesignado(int $comodoDesignado): self
+    {
+        $this->comodoDesignado = $comodoDesignado;
 
         return $this;
     }
