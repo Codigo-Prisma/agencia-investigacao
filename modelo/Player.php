@@ -1,8 +1,10 @@
 <?php
 
-class Player {
+require_once('Investigador.php');
+
+class Player{
     private string $nome;
-    private int $tipo;
+    private Investigador $tipo;
 
     public function __construct($nm,$tip)
     {
