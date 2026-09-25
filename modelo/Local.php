@@ -14,6 +14,14 @@ class Local {
         $this->comodos = $comodos;
     }
 
+    public function __toString()
+    {
+        $msg = "";
+        foreach($this->comodos as $i=>$valor){
+            $msg .= "Comodo " . ($i+1) . ": " . $valor->getNome() . "\n";
+        }
+        return $msg;
+    }
     public function getNome(): string
     {
         return $this->nome;
