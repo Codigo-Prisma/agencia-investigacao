@@ -4,6 +4,12 @@ class Investigador {
     private string $nome;
     private float $custo;
 
+    public function __construct($nm, $custo)
+    {
+        $this->nome = $nm;
+        $this->custo = $custo;
+    }
+
     public function getNome(): string
     {
         return $this->nome;

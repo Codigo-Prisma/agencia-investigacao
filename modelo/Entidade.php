@@ -4,7 +4,15 @@ class Entidade {
     private string $nome;
     private string $descricao;
     private array $eviPossiveis;
+    private int $agressividade;
 
+    public function __construct($nm,$desc,$evPo,$agressividade)
+    {
+        $this->nome = $nm;
+        $this->descricao = $desc;
+        $this->eviPossiveis = $evPo;
+        $this->agressividade = $agressividade;
+    }
     public function getNome(): string
     {
         return $this->nome;
@@ -37,6 +45,18 @@ class Entidade {
     public function setEviPossiveis(array $eviPossiveis): self
     {
         $this->eviPossiveis = $eviPossiveis;
+
+        return $this;
+    }
+
+    public function getAgressividade(): int
+    {
+        return $this->agressividade;
+    }
+
+    public function setAgressividade(int $agressividade): self
+    {
+        $this->agressividade = $agressividade;
 
         return $this;
     }

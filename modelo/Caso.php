@@ -1,15 +1,44 @@
 <?php
 
 require_once('Entidade.php');
+require_once('Local.php');
 
 class Caso {
     private int $cod;
-    private string $local;
+    
+    private Local $local;
     private string $descricao;
-    private float $recompensa;
-    private int $tempoAtual;
-    private int $tempoMax;
+
+    private float $orcamento;
+
+    private int $dificuldadeGeral;
+
     private Entidade $entidade;
+
+    public function __construct($cod, Local $local, $desc, $orcamento, Entidade $entidade)
+    {
+        $this->cod = $cod;
+        $this->local = $local;
+        $this->descricao = $desc;
+        $this->orcamento = $orcamento;
+        $this->entidade = $entidade;
+        $this->dificuldadeGeral = $this->calcularDificuldadeGeral();
+    }
+
+    private function calcularDificuldadeGeral(): int
+    {
+        $dificuldadeLocal = $this->local->getDificuldade();
+        $dificuldadeEntidade = $this->entidade->getAgressividade();
+
+        // Fórmula que usa as duas dificuldades ao mesmo tempo.
+        // Quando ambos valem 10, o resultado fica 100:
+        // (10 * 10) + ((10 - 10) * (10 - 10) / 10) = 100
+        return (($dificuldadeLocal * $dificuldadeEntidade) + (($dificuldadeLocal - $dificuldadeEntidade) * ($dificuldadeLocal - $dificuldadeEntidade) / 10));
+    }
+    public function __toString()
+    {
+        return "Caso: " . $this->cod . "\nLocal: " . $this->local->getNome() . "\nDescrição: " . $this->descricao . "\nOrçamento: " . $this->orcamento . "\n" . "Dificuldade Geral: " . $this->dificuldadeGeral;
+    }
     
     public function getCod(): int
     {
@@ -23,12 +52,12 @@ class Caso {
         return $this;
     }
 
-    public function getLocal(): string
+    public function getLocal(): Local
     {
         return $this->local;
     }
 
-    public function setLocal(string $local): self
+    public function setLocal(Local $local): self
     {
         $this->local = $local;
 
@@ -47,41 +76,18 @@ class Caso {
         return $this;
     }
 
-    public function getRecompensa(): float
+    public function getorcamento(): float
     {
-        return $this->recompensa;
+        return $this->orcamento;
     }
 
-    public function setRecompensa(float $recompensa): self
+    public function setorcamento(float $orcamento): self
     {
-        $this->recompensa = $recompensa;
+        $this->orcamento = $orcamento;
 
         return $this;
     }
 
-    public function getTempoAtual(): int
-    {
-        return $this->tempoAtual;
-    }
-
-    public function setTempoAtual(int $tempoAtual): self
-    {
-        $this->tempoAtual = $tempoAtual;
-
-        return $this;
-    }
-
-    public function getTempoMax(): int
-    {
-        return $this->tempoMax;
-    }
-
-    public function setTempoMax(int $tempoMax): self
-    {
-        $this->tempoMax = $tempoMax;
-
-        return $this;
-    }
 
     public function getEntidade(): Entidade
     {
