@@ -13,6 +13,19 @@ class Entidade {
         $this->eviPossiveis = $evPo;
         $this->agressividade = $agressividade;
     }
+
+    public function __toString()
+    {
+        return "\n\n\nNome: " . $this->nome . "\n\nDescrição: " . $this->descricao . "\nEvidências Possíveis: " . $this->getEviPossiveisString() . "\nAgressividade: " . $this->agressividade;
+    }
+    public function getEviPossiveisString(): string
+    {
+        $msg = "";
+        foreach($this->eviPossiveis as $i=>$valor){
+            $msg .= " | " . $valor[0];
+        }
+        return $msg;
+    }
     public function getNome(): string
     {
         return $this->nome;
