@@ -2,15 +2,18 @@
 
 class Investigador {
     private string $nome;
-    private float $custo;
     private int $comodoDesignado;
 
-    public function __construct($nm, $custo)
+    public function __construct($nm,)
     {
         $this->nome = $nm;
-        $this->custo = $custo;
         $this->comodoDesignado = 0;
 
+    }
+
+    public function resetarComodoDesignado(): void
+    {
+        $this->comodoDesignado = 0;
     }
 
     public function getNome(): string
@@ -25,17 +28,7 @@ class Investigador {
         return $this;
     }
 
-    public function getCusto(): float
-    {
-        return $this->custo;
-    }
 
-    public function setCusto(float $custo): self
-    {
-        $this->custo = $custo;
-
-        return $this;
-    }
 
     public function getComodoDesignado(): int
     {
