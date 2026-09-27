@@ -18,7 +18,7 @@ class Local {
     {
         $msg = "";
         foreach($this->comodos as $i=>$valor){
-            $msg .= "Comodo " . ($i+1) . ": " . $valor->getNome() . "\n";
+            $msg .= "Comodo " . ($i+1) . ": " . $valor . "\n";
         }
         return $msg;
     }
