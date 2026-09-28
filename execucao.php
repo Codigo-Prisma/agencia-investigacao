@@ -27,6 +27,7 @@ function Main()
         }
     }
 }
+
 function Jogo($Skip = false)
 {
     // ----------------- Criação de Investigadores, Itens e Entidades -------------------
@@ -108,7 +109,7 @@ function Jogo($Skip = false)
         while ($turno <= 5) {
             escritaLenta("\n\nTurno " . $turno . " de 5\n", 10);
             switch (Menu()) {
-                case 1:
+                case 1: 
                     DistribuirTurno($ConSelecionados, $ItensSelecionados, $caso, $Player);
                     break;
                 case 2:
@@ -213,7 +214,7 @@ function ProximoTurno(array $ConSelecionados, array $EvidenciasAchadas, array $I
 {
     escritaLenta("\nIniciando próximo turno...\n", 10);
     foreach ($ConSelecionados as $Contrato) {
-        $resultado = $Contrato->coletarEvidencias($caso);
+        $resultado = $Contrato->getInvestigador()->coletarEvidencias($caso);
         if ($resultado !== null) {
             $EvidenciasAchadas[] = $resultado;
         }
@@ -236,7 +237,7 @@ function DistribuirTurno(array $ConSelecionados, array $ItensSelecionados, Caso 
 
         echo "1 - Vc mesmo (Auto-Investigação)\n";
         foreach ($ConSelecionados as $i => $Contrato) {
-            echo "\n" . ($i + 1) . " - " . $Contrato->getNome() . "...\n";
+            echo "\n" . ($i + 2) . " - " . $Contrato->getInvestigador()->getNome() . "...\n";
         }
 
         $opcao = readlineComIntervalo("Escolha alguém para distribuir: ", 1, count($ConSelecionados) + 1);
@@ -251,7 +252,7 @@ function DistribuirTurno(array $ConSelecionados, array $ItensSelecionados, Caso 
             escritaLenta("\nVocê foi designado para investigar o cômodo " . $caso->getLocal()->getComodos()[$indiceComodo] . ".\n", 10);
             break;
         } else {
-            $indice = $opcao - 1;
+            $indice = $opcao - 2;
             $ContratoEscolhido = $ConSelecionados[$indice];
             $ContratoEscolhido->getInvestigador()->setComodoDesignado($indiceComodo);
             escritaLenta("\n" . $ContratoEscolhido->getNome() . " foi designado para investigar o cômodo " . $caso->getLocal()->getComodos()[$indiceComodo] . ".\n", 10);
