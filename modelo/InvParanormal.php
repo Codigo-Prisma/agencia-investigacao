@@ -1,6 +1,7 @@
 <?php
 
 require_once('Investigador.php');
+require_once('Caso.php');
 
 class InvParanormal extends Investigador{
 
