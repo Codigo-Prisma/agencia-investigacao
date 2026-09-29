@@ -1,6 +1,7 @@
 <?php
 
 require_once('Investigador.php');
+require_once('Caso.php');
 
 class InvCampo extends Investigador{
 
@@ -9,7 +10,7 @@ class InvCampo extends Investigador{
     }
 
     public function ColetarEvidencias(Caso $caso) {
-        $comodo = $caso->getLocal()->getComodos()[$this->getComodoDesignado()];
+        $comodo = $caso->getLocal()->getComodos()[$this->comodoDesignado];
         $EvidenciasCampo = [];
 
         foreach($caso->getEntidade()->getEviPossiveis() as $evidencia) {
@@ -22,10 +23,10 @@ class InvCampo extends Investigador{
 
         if ($achar <= 50 && !empty($EvidenciasCampo)) {
             $evidenciaColetada = $EvidenciasCampo[array_rand($EvidenciasCampo)];
-            escritaLenta("\n" . $this->getNome() . " coletou a evidência: " . $evidenciaColetada[0] . ".\n", 10);
+            escritaLenta("\n" . $this->nome . " coletou a evidência: " . $evidenciaColetada[0] . ".\n", 10);
             return $evidenciaColetada;
         } else {
-            escritaLenta("\n" . $this->getNome() . " não encontrou nenhuma evidência no cômodo " . $comodo . ".\n", 10);
+            escritaLenta("\n" . $this->nome . " não encontrou nenhuma evidência no cômodo " . $comodo . ".\n", 10);
             return null;
         }
     }

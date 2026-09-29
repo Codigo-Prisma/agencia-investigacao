@@ -1,19 +1,19 @@
 <?php
 
 class Investigador {
-    private string $nome;
-    private int $comodoDesignado;
+    protected string $nome;
+    protected int $comodoDesignado;
 
-    public function __construct($nm,)
+    public function __construct($nm)
     {
         $this->nome = $nm;
-        $this->comodoDesignado = 0;
+        $this->comodoDesignado = -1;
 
     }
 
     public function resetarComodoDesignado(): void
     {
-        $this->comodoDesignado = 0;
+        $this->comodoDesignado = -1;
     }
 
     public function getNome(): string
