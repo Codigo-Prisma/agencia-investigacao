@@ -4,7 +4,7 @@ class Investigador {
     private string $nome;
     private int $comodoDesignado;
 
-    public function __construct($nm)
+    public function __construct($nm,)
     {
         $this->nome = $nm;
         $this->comodoDesignado = 0;
