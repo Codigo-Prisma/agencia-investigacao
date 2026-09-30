@@ -3,7 +3,6 @@ require_once('modelo/Player.php');
 require_once('modelo/InvCampo.php');
 require_once('modelo/InvMedium.php');
 require_once('modelo/InvParanormal.php');
-require_once('modelo/Itens.php');
 require_once('modelo/Entidade.php');
 require_once('modelo/Local.php');
 require_once('modelo/Caso.php');
@@ -14,13 +13,14 @@ function Main()
 {
     escritaLenta("Vc Gostaria de iniciar do começo? (S/N): ");
     $resp = readline();
+    // str Toupper deixa a saida maiuscula
     if (strtoupper($resp) === "S") {
         escritaLenta("Iniciando do começo...\n");
         Introducao();
         Jogo();
     } else {
 
-        if (strtoupper(readline("Skip? s/n")) === "S") {
+        if (strtoupper(readline("Pular Criação de personagem? (S/N): ")) === "S") {
             Jogo(true);
         } else {
             escritaLenta("\n\nContinuando de onde parou...\n");
@@ -32,18 +32,15 @@ function Main()
 function Jogo($Skip = false)
 {
     // ----------------- Criação de Investigadores, Itens e Entidades -------------------
+    $QuantidadesGanhas = 0;
+    $QuantidadesJogadas = 0;
 
     $Contratos = array(
-        new Contrato(100.0, new InvCampo("Agente 1")),
-        new Contrato(150.0, new InvMedium("Agente 2")),
-        new Contrato(200.0, new InvParanormal("Agente 3"))
+        new Contrato(800.0, new InvCampo("Policial Paulo")),
+        new Contrato(1000.0, new InvMedium("Drª Mitsuki")),
+        new Contrato(1500.0, new InvParanormal("Médium Roberto"))
     );
 
-    $Itens = array(
-        new Itens("Item 1", "Descrição do Item 1", 50.0, 1),
-        new Itens("Item 2", "Descrição do Item 2", 75.0, 2),
-        new Itens("Item 3", "Descrição do Item 3", 100.0, 3)
-    );
 
     $Evidencias = [
         ["Rastros de mãos", 1],
@@ -82,6 +79,7 @@ function Jogo($Skip = false)
     );
 
     // -------------------Fim da criação de Investigadores, Itens e Entidades-------------------
+
     if (!$Skip) {
         escritaLenta("Abrindo o sistema de investigação...\n", 50);
         escritaLenta("\nBEM-VINDO INVESTIGADOR!\n\n", 10);
@@ -102,16 +100,17 @@ function Jogo($Skip = false)
             $caso = CriarCaso($Locais, $Entidades);
         }
 
+        $Skip = false;
 
         escritaLenta("\n\nCaso aceito! Iniciando seleção de investigadores e itens...\n", 10);
         $ConSelecionados = escolhaCompra($Contratos, $caso);
-        $ItensSelecionados = escolhaCompra($Itens, $caso);
         $turno = 1;
         while ($turno <= 5) {
-            escritaLenta("\n\n\n\n\nTurno " . $turno . " de 5\n", 10);
+            escritaLenta("\n\n\n\n\n\n\n",50);
+            escritaLenta("Turno " . $turno . " de 5\n", 10);
             switch (Menu()) {
                 case 1:
-                    DistribuirTurno($ConSelecionados, $ItensSelecionados, $caso, $Player);
+                    DistribuirTurno($ConSelecionados, $caso, $Player);
                     break;
                 case 2:
                     escritaLenta("\nListando Evidências Coletadas...\n", 10);
@@ -120,22 +119,22 @@ function Jogo($Skip = false)
                     }
                     break;
                 case 3:
-                    switch (TentarAdivinhar($caso, $Entidades, $EvidenciasAchadas)) {
-                        case -1:
-                            Perdeu($caso);
-                            break 3;
-                        case 1:
-                            Ganhou($caso);
-                            break 3;
-                        default:
-                            break 2;
+                    if (TentarAdivinhar($caso,$Entidades,$EvidenciasAchadas,$QuantidadesGanhas,$QuantidadesJogadas) != -1){
+                        break 2;
                     }
                     break;
                 case 4:
                     Guia($Entidades, $Evidencias, $EvidenciasAchadas);
                     break;
                 case 5:
-                    $EvidenciasAchadas = ProximoTurno($ConSelecionados, $EvidenciasAchadas, $ItensSelecionados, $caso, $Player, $turno);
+                    $EvidenciasAchadas = ProximoTurno($ConSelecionados, $EvidenciasAchadas, $caso, $Player, $turno);
+                    if($turno == 6){
+                        escritaLenta("\n\n\nVc ultrapassou o limite de turno, vc será obrigado a tentar adivinhar a entidade...");
+                        readline(false);
+                        echo ("\n\n");
+                        TentarAdivinhar($caso,$Entidades,$EvidenciasAchadas,$QuantidadesGanhas,$QuantidadesJogadas,True);
+                        break 2;
+                    }
                     break;
                 default:
                     escritaLenta("\nOpção inválida. Tente novamente.\n", 10);
@@ -144,45 +143,50 @@ function Jogo($Skip = false)
     }
 }
 
-function Perdeu($caso)
+
+function GanharOuPerder(caso $caso,int $resultado,int &$QuantidadesGanhas,int &$QuantidadesJogadas)
 {
-    escritaLenta("...\n", 1);
-    escritaLenta("O resultado era...\n\n");
+    if($resultado == 1){
+        $QuantidadesGanhas++;
+    }
+    $QuantidadesJogadas++;
+    escritaLenta("\n\n...\n", 50);
+    escritaLenta("\nO resultado era...\n\n", 50);
     echo $caso->getEntidade();
-    escritaLenta("\n\nVc errou seu palpite...\n");
-    escritaLenta("Adivinhe melhor na próxima");
-    escritaLenta("Indo para o proximo caso...", 10);
+    echo ($resultado == 1) ? "\n\nMeus parabénss, vc acertou corretamente!" : "\n\nTente advinhar melhor na próxima vez";
+    echo "\n\nSEU SCORE " . $QuantidadesGanhas . "/" . $QuantidadesJogadas;
+    readline("\n\nPressione Enter Para o próximo caso...");
+    echo("\n\n\n\n\n\n");
 }
-function Ganhou($caso)
-{
-    escritaLenta("...\n", 1);
-    escritaLenta("O resultado era...\n\n");
-    echo $caso->getEntidade();
-    escritaLenta("\n\nMeus parabéns por acertar corretamente\n");
-    escritaLenta("Indo para o proximo caso...", 10);
-}
-function TentarAdivinhar($caso, $Entidades, $EvidenciasAchadas)
+function TentarAdivinhar(caso $caso,array $Entidades,array $EvidenciasAchadas,int &$QuantidadesGanhas,int &$QuantidadesJogadas,$obrigado = false)
 {
     $EntidadesFiltradas = FiltrarEntidades($EvidenciasAchadas, $Entidades);
 
-    do {
-        $resp = readline("\n\nQual o seu palpite? 0 - cancelar");
-    } while (!($resp >= 0 && $resp <= count($EntidadesFiltradas)));
+    if($obrigado){
+        do {
+            $resp = readline("\n\nQual o seu palpite?\n");
+        } while (!($resp >= 1 && $resp <= count($EntidadesFiltradas)));
+    } else {
+        do {
+            $resp = readline("\n\nQual o seu palpite?\n0 - cancelar\n");
+        } while (!($resp >= 0 && $resp <= count($EntidadesFiltradas)));
+    }
+    
 
     if ($resp == 0) {
-        return 0;
+        return -1;
     }
 
     $resp--;
 
     if ($EntidadesFiltradas[$resp]->getNome() == $caso->getEntidade()->getNome()) {
-        return 1;
+        GanharOuPerder($caso, 1, $QuantidadesGanhas,$QuantidadesJogadas);
     } else {
-        return -1;
+        GanharOuPerder($caso, 0, $QuantidadesGanhas,$QuantidadesJogadas);
     }
 }
 
-function FiltrarEntidades($EvidenciasAchadas, $Entidades)
+function FiltrarEntidades(array $EvidenciasAchadas,array $Entidades)
 {
     $NomeEvidenciasAchadas = [];
     $NomeEvidenciaEntidade = [];
@@ -222,9 +226,9 @@ function FiltrarEntidades($EvidenciasAchadas, $Entidades)
     return $objetos_filtrados;
 }
 
-function ProximoTurno(array $ConSelecionados, array $EvidenciasAchadas, array $ItensSelecionados, Caso $caso, Player $Player, int &$turno)
+function ProximoTurno(array $ConSelecionados, array $EvidenciasAchadas, Caso $caso, Player $Player, int &$turno)
 {
-    escritaLenta("\nIniciando próximo turno...\n", 10);
+    escritaLenta("\n\n\nIniciando próximo turno...\n\n\n", 30);
     if ($Player->getTipo() !== null) {
         $resultado = $Player->getTipo()->coletarEvidencias($caso);
         if ($resultado !== null) {
@@ -235,20 +239,17 @@ function ProximoTurno(array $ConSelecionados, array $EvidenciasAchadas, array $I
 
     foreach ($ConSelecionados as $Contrato) {
         $resultado = $Contrato->getInvestigador()->coletarEvidencias($caso);
-        if ($resultado !== null) {
+        
+        if ($resultado !== null && !in_array($resultado,$EvidenciasAchadas,true)) {
             $EvidenciasAchadas[] = $resultado;
         }
         $Contrato->getInvestigador()->resetarComodoDesignado();
     }
-    // foreach ($ItensSelecionados as $Item) {
-    //     $Item->coletarEvidencias($caso);
-    // }
-    // Preguica de implementar os itens agr
-
+    readline("\n\nPressione Enter...");
     $turno++;
     return $EvidenciasAchadas;
 }
-function DistribuirTurno(array $ConSelecionados, array $ItensSelecionados, Caso $caso, Player $Player)
+function DistribuirTurno(array $ConSelecionados, Caso $caso, Player $Player)
 {
     escritaLenta("\n\n\n\n\nDistribuindo os Agentes...\n\n", 10);
     while (true) {
@@ -273,7 +274,7 @@ function DistribuirTurno(array $ConSelecionados, array $ItensSelecionados, Caso 
         if ($opcao == 0) {
             break;
         }
-
+        escritaLenta("\n\n\n\n\n",50);
         // Operador ternario ("?") é apenas um if e else em uma linha, para simplificar o código. 
         echo ($opcao == 1 ? "\nVocê escolheu Auto-Investigação.\n" : "\nVocê escolheu " . $ConSelecionados[$opcao - 2]->getNome() . ".\n") . "\n";
         $comodoEscolhido = readlineComIntervalo($caso->getLocal()->__toString() . "\nDigite o número do cômodo escolhido: ", 1, count($caso->getLocal()->getComodos()));
@@ -294,7 +295,7 @@ function DistribuirTurno(array $ConSelecionados, array $ItensSelecionados, Caso 
         }
     }
 }
-function Guia($Entidades, $Evidencias, $EvidenciasAchadas)
+function Guia(array $Entidades,array $Evidencias, $EvidenciasAchadas)
 {
     escritaLenta("\nAbrindo Guia...\n", 10);
     echo "1 - Listar Evidencias Possíveis\n";
@@ -311,8 +312,8 @@ function Guia($Entidades, $Evidencias, $EvidenciasAchadas)
             break;
         case 2:
             escritaLenta("\nListando Entidades Possíveis...\n", 10);
-            foreach ($Entidades as $entidade) {
-                echo $entidade->__toString();
+            foreach ($Entidades as $i=>$entidade) {
+                echo "\n\n\n".($i+1) . " - ".$entidade->__toString();
             }
             break;
         case 3:
@@ -324,7 +325,7 @@ function Guia($Entidades, $Evidencias, $EvidenciasAchadas)
 }
 function FazerPlayer()
 {
-    $resp = readline(escritaLenta("\nDigite seu tipo\n1: Campo\n2: Paranormal\n3: Medium\n(Isso lhe dara mais sorte para Auto-Investigação)\n-> ", 10));
+    $resp = readlineComIntervalo(escritaLenta("\nDigite seu tipo\n1: Campo\n2: Paranormal\n3: Medium\n(Isso lhe dara mais sorte para Auto-Investigação)\n-> ", 10),1,3);
     switch ($resp) {
         case 1:
             return new InvCampo("Player");
@@ -332,9 +333,6 @@ function FazerPlayer()
             return new InvParanormal("Player");
         case 3:
             return new InvMedium("Player");
-        default:
-            escritaLenta("\nOpção inválida. Por favor, escolha novamente.\n", 10);
-            return FazerPlayer();
     }
 }
 function readlineComIntervalo($prompt, $min, $max)
@@ -361,7 +359,7 @@ function Menu()
     return readlineComIntervalo("Escolha uma opção: ", 1, 5);
 }
 
-function escolhaCompra($var, $caso)
+function escolhaCompra($var,caso $caso)
 {
     $orcamento = $caso->getorcamento();
     if (!is_array($var) || empty($var)) {
@@ -371,21 +369,30 @@ function escolhaCompra($var, $caso)
     $selecionados = array();
     $custoTotal = 0;
 
-    echo "FAÇA SUAS ESCOLHAS:\n\n";
+    echo "\n\nFAÇA SUAS ESCOLHAS:\n\n";
 
     while (true) {
+        if(count($var) == count($selecionados)){
+            escritaLenta("\n\n\nVc ja comprou todos!!!\navançando progresso\n\n\n\n",40);
+            break;
+        }
+
         $orcamentoRestante = $orcamento - $custoTotal;
-        echo "\nOrçamento disponível: R$ " . number_format($orcamentoRestante, 2, ',', '.') . "\n";
-        echo "Escolha um item (ou digite 'fim' para encerrar a seleção):\n";
+        // nunber fomat é apenas para formatação da saida
+        echo "\n\nOrçamento disponível: R$ " . number_format($orcamentoRestante, 2, ',', '.') . "\n";
+        echo "\nEscolha um item (ou digite 'fim' para encerrar a seleção):\n\n";
 
         foreach ($var as $index => $Valor) {
             echo ($index + 1) . ". " . $Valor->getNome() . " - Custo: R$ " . number_format($Valor->getCusto(), 2, ',', '.') . "\n";
         }
 
-        $escolha = readline("Digite o número do item escolhido: ");
+        $escolha = readline("\nDigite o número do item escolhido: ");
         if (strtolower($escolha) === 'fim') {
             break;
-        }
+        } else if (!in_array($escolha, [1,2,3,4])){
+            // começa dnv esse ciclo
+            continue;
+        }   
 
         $indice = (int) $escolha - 1;
         $existe = false;
@@ -401,12 +408,15 @@ function escolhaCompra($var, $caso)
             if ($custoTotal + $ValorEscolhido->getCusto() <= $orcamento) {
                 $selecionados[] = $ValorEscolhido;
                 $custoTotal += $ValorEscolhido->getCusto();
-                echo "Item " . $ValorEscolhido->getNome() . " adicionado(a) à seleção.\n";
+                echo "\n\n\n\n" . $ValorEscolhido->getNome() . " adicionado(a) à equipe.\n\n\n";
             } else {
-                echo "Orçamento insuficiente para adicionar este item.\n";
+                echo "\nOrçamento insuficiente para adicionar este item.\n";
             }
-        } else {
-            echo "\nOpção inválida. Tente novamente.\n\n";
+        } else if ($existe){
+            escritaLenta("\nEle já está na sua equipe.\n\n",50);
+        }
+        else {
+            escritaLenta("\nOpção invalida..\n\n",50);;
         }
     }
     $caso->setorcamento($orcamento - $custoTotal);
@@ -445,7 +455,7 @@ function Ajuda()
     escritaLenta("↪ Cada caso terá um tempo limite para ser resolvido (5 turnos), e você precisará coletar evidências suficientes para identificar a entidade responsável.\n\n");
 }
 
-function CriarCaso($Locais, $Entidades)
+function CriarCaso(array $Locais,array $Entidades)
 {
     $local = $Locais[array_rand($Locais)];
     $entidade = $Entidades[array_rand($Entidades)];
