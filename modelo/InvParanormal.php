@@ -1,9 +1,9 @@
 <?php
 
 require_once('Investigador.php');
-require_once('Caso.php');
+require_once('IInvestigador.php');
 
-class InvParanormal extends Investigador{
+class InvParanormal extends Investigador implements IInvestigador{
 
     public function __construct($nm){
         parent::__construct($nm);
