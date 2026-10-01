@@ -5,19 +5,24 @@ class Entidade {
     private string $descricao;
     private array $eviPossiveis;
     private int $agressividade;
+    private array $sustos;
+    private array $ataques;
 
-    public function __construct($nm,$desc,$evPo,$agressividade)
+    public function __construct($nm,$desc,$evPo,$agressividade, $sustos, $ataques)
     {
         $this->nome = $nm;
         $this->descricao = $desc;
         $this->eviPossiveis = $evPo;
         $this->agressividade = $agressividade;
+        $this->sustos = $sustos;
+        $this->ataques = $ataques;
     }
 
     public function __toString()
     {
         return "\n\n\nNome: " . $this->nome . "\n\nDescrição: " . $this->descricao . "\nEvidências Possíveis: " . $this->getEviPossiveisString() . "\nAgressividade: " . $this->agressividade;
     }
+
     public function getEviPossiveisString(): string
     {
         $msg = "";
@@ -26,6 +31,7 @@ class Entidade {
         }
         return $msg;
     }
+
     public function getNome(): string
     {
         return $this->nome;
@@ -70,6 +76,30 @@ class Entidade {
     public function setAgressividade(int $agressividade): self
     {
         $this->agressividade = $agressividade;
+
+        return $this;
+    }
+
+    public function getSustos(): array
+    {
+        return $this->sustos;
+    }
+
+    public function setSustos(array $sustos): self
+    {
+        $this->sustos = $sustos;
+
+        return $this;
+    }
+
+    public function getAtaques(): array
+    {
+        return $this->ataques;
+    }
+
+    public function setAtaques(array $ataques): self
+    {
+        $this->ataques = $ataques;
 
         return $this;
     }
