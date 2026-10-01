@@ -36,11 +36,44 @@ function Jogo($Skip = false)
     $QuantidadesJogadas = 0;
 
     $Contratos = array(
-        new Contrato(800.0, new InvCampo("Policial Paulo")),
-        new Contrato(1000.0, new InvMedium("Drª Mitsuki")),
-        new Contrato(1500.0, new InvParanormal("Médium Roberto"))
+        new Contrato(800.0, new InvCampo("Policial Paulo (Agente de Campo)")),
+        new Contrato(1000.0, new InvMedium("Drª Mitsuki (Agente Paranormal)")),
+        new Contrato(1500.0, new InvParanormal("Médium Roberto (Agente Médium)"))
     );
 
+    $sustos = [
+        //Paranormal
+        ["nome" => "Passos próximos", "tipo" => "paranormal", "courage" => 3],
+        ["nome" => "Porta se fecha", "tipo" => "paranormal", "courage" => 3],
+        ["nome" => "Luzes se apagam", "tipo" => "paranormal", "courage" => 4],
+        ["nome" => "Luzes começam a piscar", "tipo" => "paranormal", "courage" => 3],
+        ["nome" => "Objeto se move sozinho", "tipo" => "paranormal", "courage" => 4],
+        ["nome" => "Objeto cai sozinho", "tipo" => "paranormal", "courage" => 3],
+        ["nome" => "Temperatura cai repentinamente", "tipo" => "paranormal", "courage" => 4],
+        ["nome" => "Sombra passa rapidamente", "tipo" => "paranormal", "courage" => 5],
+        ["nome" => "Voz é ouvida no ambiente", "tipo" => "paranormal", "courage" => 5],
+
+        //Mental
+        ["nome" => "Sensação de estar sendo observado", "tipo" => "mental", "courage" => 3],
+        ["nome" => "Sensação de presença", "tipo" => "mental", "courage" => 4],
+        ["nome" => "Desorientação repentina", "tipo" => "mental", "courage" => 5],
+        ["nome" => "Alucinação", "tipo" => "mental", "courage" => 6],
+        ["nome" => "Medo inexplicável", "tipo" => "mental", "courage" => 4],
+    ];
+
+    $ataques = [
+        ["nome" => "Alguém foi EMPURRADO", "tipo" => "paranormal", "courage" => 8],
+        ["nome" => "Alguém foi DERRUBADO", "tipo" => "paranormal", "courage" => 10],
+        ["nome" => "Alguém foi AGARRADO", "tipo" => "paranormal", "courage" => 9],
+        ["nome" => "Alguém foi SUFOCADO", "tipo" => "paranormal", "courage" => 12],
+        ["nome" => "Alguém foi ATINGIDO", "tipo" => "paranormal", "courage" => 10],
+        ["nome" => "Alguém foi ARRANHADO", "tipo" => "paranormal", "courage" => 8],
+        ["nome" => "Alguém foi ARREMESADO", "tipo" => "paranormal", "courage" => 12],
+        ["nome" => "Alguém foi PERSEGUIDO PELA ENTIDADE", "tipo" => "paranormal", "courage" => 7],
+
+        ["nome" => "Forte influência mental", "tipo" => "mental", "courage" => 10],
+        ["nome" => "Ataque mental", "tipo" => "mental", "courage" => 12],
+    ];
 
     $Evidencias = [
         ["Rastros de mãos", 1],
@@ -57,15 +90,68 @@ function Jogo($Skip = false)
     $EvidenciasAchadas = [];
 
     $Entidades = array(
-        new Entidade("Fantasma", "Fantasma simples e comum, geralmente ligado ao local onde morreu ou a um evento marcante.", array($Evidencias[0], $Evidencias[1], $Evidencias[2]), 1),
-        new Entidade("Poltergeist", "Entidade agressiva conhecida por manipular objetos, causar perturbações físicas e produzir atividade intensa no ambiente.", array($Evidencias[3], $Evidencias[4], $Evidencias[5]), 7),
-        new Entidade("Banshee", "Espírito associado a manifestações sonoras e lamentos, tornando-se mais ativo quando percebe a presença de pessoas próximas.", array($Evidencias[5], $Evidencias[7], $Evidencias[8]), 5),
-        new Entidade("Demonio", "Entidade extremamente hostil que busca intimidar, perseguir e enfraquecer suas vítimas através de manifestações violentas.", array($Evidencias[1], $Evidencias[4], $Evidencias[6]), 10),
-        new Entidade("Espírito", "Manifestação sobrenatural de uma presença humana falecida, capaz de interagir de forma limitada com pessoas e objetos.", array($Evidencias[0], $Evidencias[5], $Evidencias[7]), 2),
-        new Entidade("Sombra", "Entidade obscura que costuma permanecer fora do campo de visão, manifestando-se através de alterações ambientais e aparições rápidas.", array($Evidencias[2], $Evidencias[4], $Evidencias[5]), 4),
-        new Entidade("Wraith", "Espírito predador e territorial que se movimenta silenciosamente e costuma perseguir suas vítimas antes de atacar.", array($Evidencias[2], $Evidencias[4], $Evidencias[7]), 6),
-        new Entidade("Specter", "Aparição instável que se manifesta rapidamente, deixando poucos rastros físicos e desaparecendo antes de ser observada por muito tempo.", array($Evidencias[0], $Evidencias[3], $Evidencias[8]), 1),
-        new Entidade("Revenant", "Espírito vingativo extremamente agressivo, fortalecido por raiva ou desejo de vingança e conhecido por perseguir persistentemente seus alvos.", array($Evidencias[1], $Evidencias[5], $Evidencias[8]), 8)
+        new Entidade("Fantasma",
+        "Fantasma simples e comum, geralmente ligado ao local onde morreu ou a um evento marcante.",
+        array($Evidencias[0], $Evidencias[1], $Evidencias[2]),
+        1,
+        $sustos,
+        $ataques),
+
+        new Entidade("Poltergeist",
+        "Entidade agressiva conhecida por manipular objetos, causar perturbações físicas e produzir atividade intensa no ambiente.",
+        array($Evidencias[3], $Evidencias[4], $Evidencias[5]),
+        7,
+        $sustos,
+        $ataques),
+
+        new Entidade("Banshee",
+        "Espírito associado a manifestações sonoras e lamentos, tornando-se mais ativo quando percebe a presença de pessoas próximas.",
+        array($Evidencias[5], $Evidencias[7], $Evidencias[8]),
+        5,
+        $sustos,
+        $ataques),
+
+        new Entidade("Demonio",
+        "Entidade extremamente hostil que busca intimidar, perseguir e enfraquecer suas vítimas através de manifestações violentas.",
+        array($Evidencias[1], $Evidencias[4], $Evidencias[6]),
+        10,
+        $sustos,
+        $ataques),
+
+        new Entidade("Espírito",
+        "Manifestação sobrenatural de uma presença humana falecida, capaz de interagir de forma limitada com pessoas e objetos.",
+        array($Evidencias[0], $Evidencias[5], $Evidencias[7]),
+        2,
+        $sustos,
+        $ataques),
+
+        new Entidade("Sombra",
+        "Entidade obscura que costuma permanecer fora do campo de visão, manifestando-se através de alterações ambientais e aparições rápidas.",
+        array($Evidencias[2], $Evidencias[4], $Evidencias[5]),
+        4,
+        $sustos,
+        $ataques),
+
+        new Entidade("Wraith",
+        "Espírito predador e territorial que se movimenta silenciosamente e costuma perseguir suas vítimas antes de atacar.",
+        array($Evidencias[2], $Evidencias[4], $Evidencias[7]),
+        6,
+        $sustos,
+        $ataques),
+
+        new Entidade("Specter",
+        "Aparição instável que se manifesta rapidamente, deixando poucos rastros físicos e desaparecendo antes de ser observada por muito tempo.",
+        array($Evidencias[0], $Evidencias[3], $Evidencias[8]),
+        1,
+        $sustos,
+        $ataques),
+
+        new Entidade("Revenant",
+        "Espírito vingativo extremamente agressivo, fortalecido por raiva ou desejo de vingança e conhecido por perseguir persistentemente seus alvos.",
+        array($Evidencias[1], $Evidencias[5], $Evidencias[8]),
+        8,
+        $sustos,
+        $ataques),
     );
 
     $Locais = array(
@@ -234,6 +320,7 @@ function ProximoTurno(array $ConSelecionados, array $EvidenciasAchadas, Caso $ca
         if ($resultado !== null) {
             $EvidenciasAchadas[] = $resultado;
         }
+        EventoEntidade($Player->getTipo(), $caso->getEntidade());
         $Player->getTipo()->resetarComodoDesignado();
     }
 
@@ -243,12 +330,14 @@ function ProximoTurno(array $ConSelecionados, array $EvidenciasAchadas, Caso $ca
         if ($resultado !== null && !in_array($resultado,$EvidenciasAchadas,true)) {
             $EvidenciasAchadas[] = $resultado;
         }
+        EventoEntidade($Contrato->getInvestigador(), $caso->getEntidade());
         $Contrato->getInvestigador()->resetarComodoDesignado();
     }
     readline("\n\nPressione Enter...");
     $turno++;
     return $EvidenciasAchadas;
 }
+
 function DistribuirTurno(array $ConSelecionados, Caso $caso, Player $Player)
 {
     escritaLenta("\n\n\n\n\nDistribuindo os Agentes...\n\n", 10);
@@ -295,6 +384,7 @@ function DistribuirTurno(array $ConSelecionados, Caso $caso, Player $Player)
         }
     }
 }
+
 function Guia(array $Entidades,array $Evidencias, $EvidenciasAchadas)
 {
     escritaLenta("\nAbrindo Guia...\n", 10);
@@ -380,13 +470,13 @@ function escolhaCompra($var,caso $caso)
         $orcamentoRestante = $orcamento - $custoTotal;
         // nunber fomat é apenas para formatação da saida
         echo "\n\nOrçamento disponível: R$ " . number_format($orcamentoRestante, 2, ',', '.') . "\n";
-        echo "\nEscolha um item (ou digite 'fim' para encerrar a seleção):\n\n";
+        echo "\nEscolha um agente (ou digite 'fim' para encerrar a seleção):\n\n";
 
         foreach ($var as $index => $Valor) {
             echo ($index + 1) . ". " . $Valor->getNome() . " - Custo: R$ " . number_format($Valor->getCusto(), 2, ',', '.') . "\n";
         }
 
-        $escolha = readline("\nDigite o número do item escolhido: ");
+        $escolha = readline("\nDigite o número do agente escolhido: ");
         if (strtolower($escolha) === 'fim') {
             break;
         } else if (!in_array($escolha, [1,2,3,4])){
@@ -410,7 +500,7 @@ function escolhaCompra($var,caso $caso)
                 $custoTotal += $ValorEscolhido->getCusto();
                 echo "\n\n\n\n" . $ValorEscolhido->getNome() . " adicionado(a) à equipe.\n\n\n";
             } else {
-                echo "\nOrçamento insuficiente para adicionar este item.\n";
+                echo "\nOrçamento insuficiente para adicionar este agente.\n";
             }
         } else if ($existe){
             escritaLenta("\nEle já está na sua equipe.\n\n",50);
@@ -466,6 +556,59 @@ function CriarCaso(array $Locais,array $Entidades)
     return new Caso(rand(1, 1000), $local, $descricao, $orcamento, $entidade);
 }
 
+function Susto(Investigador $investigador, Entidade $entidade): void
+{
+    $sustos = $entidade->getSustos();
 
+    if (empty($sustos)) {
+        return;
+    }
+
+    $susto = $sustos[array_rand($sustos)];
+
+    echo "\nEVENTO: " . $susto["nome"] . "\n";
+
+    $investigador->alterarCourage(-$susto["courage"]);
+
+    echo "Courage de " . $investigador->getNome() . ": "
+        . $investigador->getCourage() . "\n";
+}
+
+function Ataque(Investigador $investigador, Entidade $entidade): void
+{
+    $ataques = $entidade->getAtaques();
+
+    if (empty($ataques)) {
+        return;
+    }
+
+    $ataque = $ataques[array_rand($ataques)];
+
+    echo "\nEVENTO: " . $ataque["nome"] . "\n";
+
+    $investigador->alterarCourage(-$ataque["courage"]);
+
+    echo "Courage de " . $investigador->getNome() . ": "
+        . $investigador->getCourage() . "\n";
+}
+
+function EventoEntidade(Investigador $investigador, Entidade $entidade): void
+{
+    if ($investigador->getComodoDesignado() == -1) {
+        return;
+    }
+
+    if (rand(1, 100) > 30) {
+        return;
+    }
+
+    $chanceAtaque = $entidade->getAgressividade() * 5;
+
+    if (rand(1, 100) <= $chanceAtaque) {
+        Ataque($investigador, $entidade);
+    } else {
+        Susto($investigador, $entidade);
+    }
+}
 
 Main();
