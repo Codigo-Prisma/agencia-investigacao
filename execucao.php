@@ -289,7 +289,6 @@ function FiltrarEntidades(array $EvidenciasAchadas,array $Entidades)
         }
     }
 
-
     escritaLenta("\n\nPossiveis Entidades (Filtradas)...\n\n", 20);
 
     $total_necessario = count($NomeEvidenciasAchadas);
