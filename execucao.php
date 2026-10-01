@@ -412,6 +412,7 @@ function Guia(array $Entidades,array $Evidencias, $EvidenciasAchadas)
     }
     readline(escritaLenta("\nPressione Enter para continuar...", 10));
 }
+
 function FazerPlayer()
 {
     $resp = readlineComIntervalo(escritaLenta("\nDigite seu tipo\n1: Campo\n2: Paranormal\n3: Medium\n(Isso lhe dara mais sorte para Auto-Investigação)\n-> ", 10),1,3);
